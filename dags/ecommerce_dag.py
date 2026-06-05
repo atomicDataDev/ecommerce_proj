@@ -20,7 +20,7 @@ with DAG(
 ) as dag:
     run_etl_pipeline = BashOperator(
         task_id='execute_main_py',
-        bash_command='python /opt/airflow/project && python main.py'
+        bash_command='cd /opt/airflow/project && python main.py'
     )
 
     run_etl_pipeline
