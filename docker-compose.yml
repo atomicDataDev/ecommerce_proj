@@ -1,10 +1,10 @@
 x-airflow-common: &airflow-common
-  image: apache/airflow:2.9.1
+  build: .
+  image: my_custom_airflow:latest
   environment: &airflow-common-env
     AIRFLOW__CORE__EXECUTOR: LocalExecutor
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow-db/airflow
     AIRFLOW__CORE__LOAD_EXAMPLES: 'False'
-    _PIP_ADDITIONAL_REQUIREMENTS: pandas pydantic-settings psycopg2-binary
   volumes:
     - ./dags:/opt/airflow/dags
     - ./logs:/opt/airflow/logs
