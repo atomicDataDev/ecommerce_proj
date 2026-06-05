@@ -8,7 +8,6 @@ and loader - then executes the full ETL workflow.
 import logging
 
 from pipeline.utils import setup_logging, DBConnectionManager
-from pipeline.config import settings
 from pipeline.extractors import FileExtractor, DbExtractor
 from pipeline.transformers import SalesTransformer
 from pipeline.loaders import FileLoader

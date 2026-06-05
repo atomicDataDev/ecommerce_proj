@@ -11,6 +11,7 @@ import logging
 import zipfile
 from pathlib import Path
 from typing import Generator
+from itertools import batched
 
 import pandas as pd
 from pydantic import BaseModel, ValidationError
@@ -102,32 +103,19 @@ class FileExtractor(IEventsExtractor):
         """
         Reads all event archives and returns a consolidated DataFrame.
 
-        Events are accumulated in batches of ``batch_size`` to avoid
-        holding millions of raw dicts in memory simultaneously.
-        Each batch is converted to a DataFrame immediately, then
-        all chunks are concatenated at the end.
+        Events are accumulated in batches of ``batch_size`` using itertools.batched
+        to avoid holding millions of raw dicts in memory simultaneously.
 
         :return: DataFrame with columns ``timestamp``, ``customer_id``,
             ``event_type``, ``product_id``, ``quantity``.
         :rtype: pd.DataFrame
         """
         chunks: list[pd.DataFrame] = []
-        current_batch: list[dict] = []
-
-        for event in self._iter_events():
-            current_batch.append(event)
-
-            # Convert to DataFrame once batch limit is reached.
-            if len(current_batch) >= self.batch_size:
-                chunks.append(pd.DataFrame(current_batch))
-                current_batch = []
-
-        # Flush remaining events that didn't fill a full batch.
-        if current_batch:
-            chunks.append(pd.DataFrame(current_batch))
+        
+        for batch in batched(self._iter_events(), self.batch_size):
+            chunks.append(pd.DataFrame(batch))
 
         if chunks:
             return pd.concat(chunks, ignore_index=True)
         else:
-            # Return empty DataFrame with expected schema if no data found.
             return pd.DataFrame(columns=['timestamp', 'customer_id', 'event_type', 'product_id', 'quantity'])
