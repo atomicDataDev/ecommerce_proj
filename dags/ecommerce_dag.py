@@ -12,8 +12,8 @@ default_args = {
 with DAG(
     'ecommerce_daily_report',
     default_args=default_args,
-    description='Daily ETL pipeline activation ao 02:00',
-    schedule='0 2 * * *',
+    description='Daily ETL pipeline',
+    schedule='@daily',
     start_date = datetime(2026, 5, 28),
     catchup=False,
     tags=['ecommerce', 'etl']
